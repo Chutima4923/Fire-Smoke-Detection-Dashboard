@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fire & Smoke Detection Dashboard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .dashboard-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .status-container {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .status-item {
+            margin-bottom: 10px;
+            color: #555;
+        }
+        .status-item strong {
+            font-weight: bold;
+        }
+        .upload-container {
+            margin-top: 30px;
+        }
+        .upload-button {
+            padding: 10px 20px;
+            background-color: #eee;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .file-chosen {
+            margin-left: 10px;
+            color: #777;
+        }
+        .live-feed-container {
+            margin-top: 30px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            text-align: center;
+        }
+        .live-feed-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .realtime-results {
+            margin-top: 10px;
+            text-align: left;
+        }
+        .realtime-results p {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Fire & Smoke Detection Dashboard</h1>
+        <p>Connected</p>
+
+        <div class="status-container">
+            <h2>สถานะการตรวจจับ</h2>
+            <div class="status-item">
+                <span>🔥</span> <strong>Fire Color:</strong> <span id="fire-color">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-fog" viewBox="0 0 16 16">
+                    <path d="M11.5 6.5a3.5 3.5 0 0 0-6 0H3.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-.5zm-.216-.118A4 4 0 0 1 10.5 7.5h-9a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h.5c.654-1.327 2.217-2.178 4-2.178 1.783 0 3.346.851 4 2.178h.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5-.5h-.216zM14 9.5a2.5 2.5 0 0 0-2.372-2H5.372a2.5 2.5 0 0 0 0 4H11.6a2.5 2.5 0 0 0 2.372-2h.028zM13 13.5a1.5 1.5 0 0 0-1.372-1H4.372a1.5 1.5 0 0 0 0 2H11.6a1.5 1.5 0 0 0 1.372-1h.028z"/>
+                  </svg></span> <strong>Smoke Detected:</strong> <span id="smoke-detected">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">
+                    <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                  </svg></span> <strong>Timestamp:</strong> <span id="timestamp">Loading...</span>
+            </div>
+        </div>
+
+        <div class="upload-container">
+            <h2>อัปโหลดภาพ</h2>
+            <label for="file-upload" class="upload-button">Choose File</label>
+            <input type="file" id="file-upload" style="display:none;">
+            <span id="file-name" class="file-chosen">No file chosen</span>
+        </div>
+
+        <div class="live-feed-container">
+            <h2>ภาพจากกล้อง (Real-time)</h2>
+            <img id="live-camera-feed" src="placeholder.jpg" alt="Live Camera Feed" class="live-feed-image">
+            <div class="realtime-results">
+                <h3>ผลการตรวจจับล่าสุด</h3>
+                <p><strong>ตรวจพบไฟ:</strong> <span id="realtime-fire-detection">Loading...</span></p>
+                <p><strong>ตรวจพบควัน:</strong> <span id="realtime-smoke-detection">Loading...</span></p>
+                <p><strong>สีหลักของไฟ:</strong> <span id="realtime-fire-color">Loading...</span></p>
+                <p><strong>เวลาที่ตรวจจับ:</strong> <span id="realtime-timestamp">Loading...</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('file-upload').addEventListener('change', function() {
+            var fileName = this.files[0].name;
+            document.getElementById('file-name').textContent = fileName;
+        });
+
+        // ฟังก์ชันสำหรับอัปเดตข้อมูลสถานะ (จำลอง)
+        function updateStatus() {
+            // ในแอปพลิเคชันจริง คุณจะต้องเรียก API หรือใช้ WebSocket
+            // เพื่อดึงข้อมูลล่าสุดจากระบบตรวจจับของคุณ
+            fetch('/api/status') // ตัวอย่าง API endpoint
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('fire-color').textContent = data.fireColor || 'N/A';
+                    document.getElementById('smoke-detected').textContent = data.smokeDetected ? 'Yes' : 'No';
+                    document.getElementById('timestamp').textContent = data.timestamp || 'N/A';
+                })
+                .catch(error => {
+                    console.error("Error fetching status:", error);
+                });
+        }
+
+        // ฟังก์ชันสำหรับอัปเดตภาพจากกล้อง (จำลอง)
+        function updateCameraFeed() {
+            // ในแอปพลิเคชันจริง คุณอาจจะต้องเปลี่ยน src ของ img tag ไปยัง URL ของ stream
+            // หรือดึงภาพใหม่จาก API เป็นระยะ
+            const imageElement = document.getElementById('live-camera-feed');
+            // ป้องกันการ cache ภาพโดยการเพิ่ม timestamp ใน URL
+            imageElement.src = `/api/camera-feed?t=${Date.now()}`; // ตัวอย่าง API endpoint
+        }
+
+        // ฟังก์ชันสำหรับอัปเดตผลการตรวจจับแบบเรียลไทม์ (จำลอง)
+        function updateRealtimeResults() {
+            // ในแอปพลิเคชันจริง คุณจะต้องเรียก API หรือใช้ WebSocket
+            // เพื่อดึงผลการตรวจจับล่าสุด
+            fetch('/api/realtime-results') // ตัวอย่าง API endpoint
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('realtime-fire-detection').textContent = data.fireDetected ? 'Yes' : 'No';
+                    document.getElementById('realtime-smoke-detection').textContent = data.smokeDetected ? 'Yes' : 'No';
+                    document.getElementById('realtime-fire-color').textContent = data.fireColor || 'N/A';
+                    document.getElementById('realtime-timestamp').textContent = data.timestamp || 'N/A';
+                })
+                .catch(error => {
+                    console.error("Error fetching realtime results:", error);
+                });
+        }
+
+        // เรียกฟังก์ชันอัปเดตครั้งแรก
+        updateStatus();
+        updateCameraFeed();
+        updateRealtimeResults();
+
+        // ตั้งช่วงเวลาสำหรับการอัปเดต (เช่น ทุก 1 วินาที)
+        setInterval(updateStatus, 1000);
+        setInterval(updateCameraFeed, 1000);
+        setInterval(updateRealtimeResults, 1000);
+    </script>
+</body>
+</html>
